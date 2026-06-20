@@ -1,0 +1,549 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>可画旅行 | 小众定制文旅旅行平台</title>
+  <!-- 外部资源 -->
+  <script src="https://cdn.jsdelivr.net/npm/echarts@5/dist/echarts.min.js"></script>
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+      font-family: "Microsoft YaHei", system-ui, sans-serif;
+    }
+    :root {
+      --main-blue: #245b94;
+      --light-gray: #f3f5f7;
+      --text-dark: #222;
+      --text-light: #666;
+      --white: #ffffff;
+      --shadow: 0 4px 16px rgba(0,0,0,0.08);
+    }
+    body {
+      background-color: var(--light-gray);
+      color: var(--text-dark);
+    }
+    /* 导航栏 */
+    header {
+      background: var(--white);
+      padding: 16px 60px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      box-shadow: var(--shadow);
+      position: sticky;
+      top: 0;
+      z-index: 99;
+    }
+    .nav-left a {
+      font-size: 20px;
+      font-weight: 600;
+      color: var(--main-blue);
+      text-decoration: none;
+    }
+    .nav-middle {
+      display: flex;
+      gap: 56px;
+    }
+    .nav-middle a {
+      text-decoration: none;
+      color: var(--text-dark);
+      font-size: 16px;
+      transition: 0.2s;
+    }
+    .nav-middle a.active {
+      color: var(--main-blue);
+      font-weight: 500;
+    }
+    .nav-middle a:hover {
+      color: var(--main-blue);
+    }
+    .nav-right .slogan {
+      color: var(--text-light);
+      font-size: 16px;
+      letter-spacing: 1px;
+    }
+    /* 首屏横幅Banner */
+    .banner {
+      width: 100%;
+      height: 620px;
+      background: url("https://img1.baidu.com/it/u=1293405618,3293056119&fm=253&fmt=auto&app=138&f=JPEG?w=1920&h=900") center/cover no-repeat;
+      position: relative;
+      display: flex;
+      align-items: center;
+      overflow: hidden;
+    }
+    .banner-mask {
+      position: absolute;
+      inset: 0;
+      background: rgba(0,0,0,0.3);
+    }
+    .banner-content {
+      position: relative;
+      z-index: 2;
+      color: white;
+      padding-left: 60px;
+      flex: 1;
+    }
+    .banner-title {
+      font-size: 72px;
+      font-weight: 700;
+      line-height: 1.2;
+      margin-bottom: 12px;
+    }
+    .banner-sub {
+      font-size: 30px;
+      opacity: 0.95;
+      margin-bottom: 32px;
+    }
+    .brand-tag {
+      border: 2px solid #fff;
+      border-radius: 99px;
+      display: inline-block;
+      padding: 10px 36px;
+      font-size: 22px;
+    }
+    .banner-card-group {
+      position: relative;
+      z-index: 2;
+      padding-right: 60px;
+      display: flex;
+      flex-direction: column;
+      gap: 24px;
+    }
+    .banner-card {
+      width: 320px;
+      background: white;
+      border-radius: 12px;
+      overflow: hidden;
+    }
+    .banner-card img {
+      width: 100%;
+      height: 180px;
+      object-fit: cover;
+    }
+    .card-desc {
+      padding: 12px 16px;
+      color: #333;
+      font-size: 15px;
+    }
+    .card-desc span {
+      color: #e63946;
+      margin-right: 6px;
+    }
+    /* 文旅查询板块 */
+    .search-section {
+      padding: 60px;
+      background: var(--white);
+    }
+    .section-title {
+      text-align: center;
+      font-size: 32px;
+      margin-bottom: 40px;
+      color: var(--main-blue);
+    }
+    .search-box {
+      max-width: 800px;
+      margin: 0 auto;
+      display: flex;
+      gap: 0;
+      border-radius: 8px;
+      overflow: hidden;
+      box-shadow: var(--shadow);
+    }
+    #city-input {
+      flex: 1;
+      padding: 16px 20px;
+      border: none;
+      font-size: 17px;
+      outline: none;
+    }
+    #search-btn {
+      padding: 0 32px;
+      background: var(--main-blue);
+      color: white;
+      border: none;
+      font-size: 17px;
+      cursor: pointer;
+      transition: 0.2s;
+    }
+    #search-btn:hover {
+      background: #1a4877;
+    }
+    .search-result {
+      max-width: 800px;
+      margin: 24px auto 0;
+      padding: 20px;
+      background: var(--light-gray);
+      border-radius: 8px;
+      display: none;
+    }
+    /* 地图&行程占比可视化板块 */
+    .map-data-section {
+      padding: 60px;
+      background: #0f1923;
+    }
+    .map-data-section .section-title {
+      color: #e0e8f0;
+    }
+    .map-wrap {
+      display: flex;
+      gap: 30px;
+      max-width: 1400px;
+      margin: 0 auto;
+    }
+    #china-map {
+      width: 70%;
+      height: 700px;
+    }
+    #time-pie {
+      width: 30%;
+      height: 700px;
+    }
+    /* 热门线路板块 */
+    .route-section {
+      padding: 60px;
+      background: var(--white);
+    }
+    .route-list {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 24px;
+      max-width: 1400px;
+      margin: 0 auto;
+    }
+    .route-item {
+      border-radius: 10px;
+      overflow: hidden;
+      box-shadow: var(--shadow);
+    }
+    .route-item img {
+      width: 100%;
+      height: 200px;
+      object-fit: cover;
+    }
+    .route-text {
+      padding: 16px;
+    }
+    .route-name {
+      font-size: 18px;
+      margin-bottom: 8px;
+    }
+    .route-price {
+      color: #e63946;
+      font-weight: 600;
+    }
+    /* 底部订阅栏 */
+    .subscribe-bar {
+      background: var(--light-gray);
+      padding: 20px 60px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+    .subscribe-left {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      color: var(--text-light);
+    }
+    .subscribe-btn {
+      padding: 8px 20px;
+      border: 1px solid var(--main-blue);
+      color: var(--main-blue);
+      background: transparent;
+      border-radius: 4px;
+      cursor: pointer;
+    }
+    /* 页脚 */
+    footer {
+      background: #111;
+      color: #aaa;
+      padding: 40px 60px;
+      text-align: center;
+    }
+  </style>
+</head>
+<body>
+  <!-- 导航栏 -->
+  <header>
+    <div class="nav-left">
+      <a href="#" class="active">首页</a>
+    </div>
+    <div class="nav-middle">
+      <a href="#hot-route">热门线路</a>
+      <a href="#search">出行攻略</a>
+      <a href="#map-data">定制旅行</a>
+      <a href="#">关于我们</a>
+      <a href="#">联系客服</a>
+    </div>
+    <div class="nav-right">
+      <div class="slogan">步履所及，皆为风景</div>
+    </div>
+  </header>
+
+  <!-- 首屏Banner -->
+  <section class="banner">
+    <div class="banner-mask"></div>
+    <div class="banner-content">
+      <h1 class="banner-title">不赶时间 只赶风景</h1>
+      <p class="banner-sub">小众目的地，私享专属美好</p>
+      <div class="brand-tag">可画旅行社</div>
+    </div>
+    <div class="banner-card-group">
+      <div class="banner-card">
+        <img src="https://img0.baidu.com/it/u=3829402211,2981123503&fm=253&fmt=auto&app=138&f=JPEG?w=800&h=400" alt="雪山风景">
+        <div class="card-desc"><span>❤️</span>奔赴热爱，解锁当下最火目的地</div>
+      </div>
+      <div class="banner-card">
+        <img src="https://img2.baidu.com/it/u=199640122,309133312&fm=253&fmt=auto&app=120&f=JPEG?w=800&h=400" alt="日照金山">
+        <div class="card-desc"><span>❤️</span>万千旅人选择，不负每一份期待</div>
+      </div>
+    </div>
+  </section>
+
+  <!-- 文旅目的地查询模块 -->
+  <section class="search-section" id="search">
+    <h2 class="section-title">文旅目的地信息查询</h2>
+    <div class="search-box">
+      <input type="text" id="city-input" placeholder="输入城市/景点，查询文旅介绍、交通、游玩时长">
+      <button id="search-btn">立即查询</button>
+    </div>
+    <div class="search-result" id="result-box"></div>
+  </section>
+
+  <!-- ECharts交互地图 + 每日行程时间占比饼图 -->
+  <section class="map-data-section" id="map-data">
+    <h2 class="section-title">全国旅行路线可视化 & 每日项目时间占比</h2>
+    <div class="map-wrap">
+      <div id="china-map"></div>
+      <div id="time-pie"></div>
+    </div>
+  </section>
+
+  <!-- 热门线路推荐 -->
+  <section class="route-section" id="hot-route">
+    <h2 class="section-title">热门小众旅行线路</h2>
+    <div class="route-list">
+      <div class="route-item">
+        <img src="https://img2.baidu.com/it/u=1293405618,3293056119&fm=253&fmt=auto&app=138&f=JPEG?w=800&h=500">
+        <div class="route-text">
+          <h3 class="route-name">川西雪山5日私享</h3>
+          <p class="route-price">¥2680/人起</p>
+        </div>
+      </div>
+      <div class="route-item">
+        <img src="https://img0.baidu.com/it/u=2236514223,3043212112&fm=253&fmt=auto&app=120&f=JPEG?w=800&h=500">
+        <div class="route-text">
+          <h3 class="route-name">云南大理慢旅6天</h3>
+          <p class="route-price">¥2299/人起</p>
+        </div>
+      </div>
+      <div class="route-item">
+        <img src="https://img2.baidu.com/it/u=1984138831,3723002103&fm=253&fmt=auto&app=138&f=JPEG?w=800&h=500">
+        <div class="route-text">
+          <h3 class="route-name">新疆北疆环线9日</h3>
+          <p class="route-price">¥4580/人起</p>
+        </div>
+      </div>
+      <div class="route-item">
+        <img src="https://img0.baidu.com/it/u=3130330032,207237013&fm=253&fmt=auto&app=120&f=JPEG?w=800&h=500">
+        <div class="route-text">
+          <h3 class="route-name">藏地拉萨朝圣7天</h3>
+          <p class="route-price">¥3860/人起</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- 订阅栏 -->
+  <div class="subscribe-bar">
+    <div class="subscribe-left">
+      <svg width="20" height="20" viewBox="0 0 24 24" fill="#245b94"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm0 18c-4.41 0-8-3.59-8-8s3.59-8 8-8 8 3.59 8 8-3.59 8-8 8z M12.5 7H11v6l5.25 3.15.75-1.23-4.5-2.67V7z"/></svg>
+      <span>订阅我们，获取最新线路和专属优惠</span>
+    </div>
+    <button class="subscribe-btn">立即订阅</button>
+  </div>
+
+  <!-- 页脚 -->
+  <footer>
+    <p>可画旅行社 © 2026 版权所有 | 定制小众文旅旅行服务平台</p>
+  </footer>
+
+  <script>
+    // 1. 文旅查询交互逻辑
+    const searchBtn = document.getElementById("search-btn");
+    const cityInput = document.getElementById("city-input");
+    const resultBox = document.getElementById("result-box");
+    // 模拟文旅数据库
+    const travelDB = {
+      "成都": {
+        desc: "天府之国，巴蜀文化核心，国宝大熊猫栖息地，慢生活美食之城",
+        traffic: "双流国际机场、成都东站，市内地铁全覆盖",
+        playTime: "建议游玩4-6天",
+        spot: "大熊猫基地、宽窄巷子、锦里、都江堰、青城山"
+      },
+      "拉萨": {
+        desc: "雪域圣城，藏传佛教圣地，高海拔人文自然双绝目的地",
+        traffic: "拉萨贡嘎机场、拉萨火车站，建议提前适应高原",
+        playTime: "建议游玩5-8天",
+        spot: "布达拉宫、大昭寺、纳木错、羊卓雍措"
+      },
+      "成都": {
+        desc: "天府之国，巴蜀文化核心，国宝大熊猫栖息地，慢生活美食之城",
+        traffic: "双流国际机场、成都东站，市内地铁全覆盖",
+        playTime: "建议游玩4-6天",
+        spot: "大熊猫基地、宽窄巷子、锦里、都江堰、青城山"
+      },
+      "三亚": {
+        desc: "热带滨海度假胜地，碧海沙滩，全年适宜休闲度假",
+        traffic: "三亚凤凰机场，高铁直达海口",
+        playTime: "建议游玩3-5天",
+        spot: "亚龙湾、蜈支洲岛、天涯海角、椰梦长廊"
+      },
+      "西安": {
+        desc: "十三朝古都，中华文明发源地，历史古迹富集",
+        traffic: "西安咸阳机场、西安北站，地铁覆盖全部核心景区",
+        playTime: "建议游玩3-4天",
+        spot: "兵马俑、大雁塔、古城墙、回民街、华清宫"
+      }
+    }
+    searchBtn.addEventListener("click", () => {
+      const key = cityInput.value.trim();
+      if(!key) {
+        resultBox.style.display = "block";
+        resultBox.innerHTML = "请输入城市或景点名称进行查询";
+        return;
+      }
+      if(travelDB[key]) {
+        const data = travelDB[key];
+        resultBox.style.display = "block";
+        resultBox.innerHTML = `
+          <h3 style="margin-bottom:12px;color:#245b94">${key} 文旅信息</h3>
+          <p><strong>目的地介绍：</strong>${data.desc}</p>
+          <p><strong>交通方式：</strong>${data.traffic}</p>
+          <p><strong>推荐游玩时长：</strong>${data.playTime}</p>
+          <p><strong>核心景点：</strong>${data.spot}</p>
+        `
+      } else {
+        resultBox.style.display = "block";
+        resultBox.innerHTML = `暂无「${key}」的文旅数据，尝试查询：成都 / 拉萨 / 三亚 / 西安`
+      }
+    })
+
+    // 2. ECharts 中国旅行地图（参考你提供的代码）
+    const mapDom = document.getElementById("china-map");
+    const mapChart = echarts.init(mapDom, "dark");
+    const CHINA_GEOJSON_URL = "https://geo.datav.aliyun.com/areas_v3/bound/100000_full.json";
+    function buildMapOption() {
+      const chRoughLatitude = 35;
+      return {
+        backgroundColor: "#0f1923",
+        title: {
+          text: "全国旅行路线分布",
+          left: "center",
+          top: 16,
+          textStyle: { color: "#e0e8f0", fontSize: 22 }
+        },
+        geo: {
+          map: "china",
+          roam: true,
+          aspectScale: Math.cos((chRoughLatitude * Math.PI) / 180),
+          label: { show: true, color: "#aabbcc", fontSize: 10, textBorderColor: "#0f1923", textBorderWidth:2 },
+          itemStyle: { areaColor: "#1a2a3a", borderColor: "#2a4a6a", borderWidth:1 },
+          emphasis: { itemStyle: { areaColor: "#2a4a6a" } }
+        },
+        tooltip: { trigger: "item", backgroundColor: "rgba(15,25,35,0.9)", borderColor: "#2a4a6a", textStyle:{color:"#e0e8f0"} },
+        series: [{
+          name: "旅行路线",
+          type: "graph",
+          coordinateSystem: "geo",
+          data: [
+            { name: '北京', value: [116.4074, 39.9042] },
+            { name: '上海', value: [121.4737, 31.2304] },
+            { name: '广州', value: [113.2644, 23.1291] },
+            { name: '成都', value: [104.0665, 30.5728] },
+            { name: '拉萨', value: [91.1172, 29.6473] },
+            { name: '三亚', value: [109.5119, 18.2528] },
+            { name: '西安', value: [108.9402, 34.2611] },
+          ],
+          edges: [
+            { source: '北京', target: '西安' },
+            { source: '西安', target: '成都' },
+            { source: '成都', target: '拉萨' },
+            { source: '广州', target: '三亚' },
+            { source: '北京', target: '上海' },
+          ],
+          edgeSymbol: ['none', 'arrow'],
+          edgeSymbolSize: 5,
+          lineStyle: { color: '#718adb', opacity: 0.7, width: 2 },
+          itemStyle: { color: '#e94560' },
+          label: { show:true, color:"#e0e8f0", fontSize:11, textBorderColor:"#0f1923", textBorderWidth:2 },
+          symbolSize:8,
+          emphasis: { focus: "adjacency", lineStyle:{width:4} }
+        }]
+      }
+    }
+    // 加载地图GeoJSON
+    function loadMapData() {
+      mapChart.showLoading();
+      fetch(CHINA_GEOJSON_URL)
+        .then(res=>res.json())
+        .then(geoJson=>{
+          echarts.registerMap("china", geoJson);
+          mapChart.setOption(buildMapOption());
+          mapChart.hideLoading();
+        })
+        .catch(()=>{
+          mapChart.hideLoading();
+          mapChart.setOption({title:{text:"地图加载失败，请刷新页面",textStyle:{color:"#e94560"}}})
+        })
+    }
+    loadMapData();
+
+    // 3. ECharts 饼图：每日旅行项目时间占比
+    const pieDom = document.getElementById("time-pie");
+    const pieChart = echarts.init(pieDom, "dark");
+    const pieOption = {
+      backgroundColor: "#0f1923",
+      title: {
+        text: "单日行程时间分配占比",
+        left: "center",
+        top: 20,
+        textStyle: { color: "#e0e8f0", fontSize: 20 }
+      },
+      tooltip: { trigger: "item" },
+      legend: {
+        orient: "vertical",
+        left: "left",
+        top: "middle",
+        textStyle: { color: "#c2d0e0" }
+      },
+      series: [{
+        name: "时间占比",
+        type: "pie",
+        radius: ["30%", "70%"],
+        avoidLabelOverlap: false,
+        itemStyle: { borderRadius: 8 },
+        label: { show: true, color: "#fff" },
+        data: [
+          { value: 30, name: "景区观光游览" },
+          { value: 25, name: "交通路程通勤" },
+          { value: 20, name: "特色美食体验" },
+          { value: 15, name: "民宿/酒店休息" },
+          { value: 10, name: "文创购物打卡" }
+        ]
+      }]
+    }
+    pieChart.setOption(pieOption);
+
+    // 窗口自适应重绘图表
+    window.addEventListener("resize", ()=>{
+      mapChart.resize();
+      pieChart.resize();
+    })
+  </script>
+</body>
+</html>
